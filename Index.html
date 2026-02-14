@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>For My Starry Night 💙</title>
     <style>
         /* --- ESTILOS BASE --- */
@@ -15,6 +15,7 @@
             color: white;
             background: radial-gradient(circle at top, #1e3c72, #0f2027);
             height: 100vh;
+            height: -webkit-fill-available; /* Ajuste para Safari iOS */
         }
 
         h1 { margin-top: 10vh; font-size: clamp(22px, 7vw, 45px); z-index: 1; position: relative; text-shadow: 2px 2px 10px black; padding: 0 10px; }
@@ -27,7 +28,6 @@
         @keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
         @keyframes bordeAnimado { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        /* Animación para el Gran Corazón Central */
         @keyframes latidoGrande {
             0% { transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 10px #0072ff); }
             50% { transform: translate(-50%, -50%) scale(1.15); filter: drop-shadow(0 0 30px #00c6ff); }
@@ -40,10 +40,9 @@
         .girasol { display: inline-block; animation: girar 8s linear infinite; }
         .rosa { display: inline-block; animation: latido 1.5s infinite; }
 
-        /* El Gran Corazón Azul - BAJADO UN POCO MÁS */
         .corazon-central {
             position: fixed;
-            top: 55%; /* Bajado del 45% al 55% */
+            top: 55%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: clamp(80px, 20vw, 150px);
@@ -65,7 +64,7 @@
             width: 85%; max-width: 320px; height: 200px; border-radius: 15px; padding: 4px;
             background: linear-gradient(45deg, #00c6ff, #0072ff, #00c6ff);
             background-size: 300% 300%; animation: bordeAnimado 4s linear infinite;
-            transition: 0.5s ease; z-index: 105;
+            transition: 0.5s ease; z-index: 105; cursor: pointer;
         }
         .carta.activa { transform: translate(-50%, -50%) scale(1); }
         .contenido { width: 100%; height: 100%; background: white; border-radius: 12px; position: relative; overflow: hidden; }
@@ -74,7 +73,7 @@
         .mensaje { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #1e3c72; font-size: 15px; padding: 15px; opacity: 0; transition: 0.5s; width: 85%; }
         .carta.activa .mensaje { opacity: 1; transition-delay: 0.3s; }
 
-        /* --- PANELES LATERALES (AJUSTADOS) --- */
+        /* --- PANELES LATERALES --- */
         .panel {
             position: fixed; top: 50%; width: 75%; max-width: 280px; height: 320px; padding: 5px; border-radius: 25px;
             background: linear-gradient(45deg, #00c6ff, #0072ff, #00c6ff);
@@ -86,16 +85,20 @@
         .panel-izq.activo { left: 15px; }
         .panel-der.activo { right: 15px; }
 
-        .panel-contenido { width: 100%; height: 100%; background: white; border-radius: 20px; padding: 18px; box-sizing: border-box; color: #1e3c72; overflow-y: auto; font-size: 14px; text-align: left; }
+        .panel-contenido { 
+            width: 100%; height: 100%; background: white; border-radius: 20px; padding: 18px; 
+            box-sizing: border-box; color: #1e3c72; overflow-y: auto; text-align: left;
+            font-size: 16px; /* Tamaño ideal para evitar zoom en iPhone */
+        }
 
         .boton-lateral { position: fixed; top: 50%; transform: translateY(-50%); background: #0072ff; border: none; padding: 12px; border-radius: 50%; color: white; cursor: pointer; z-index: 120; box-shadow: 0 0 15px #00c6ff; }
         .btn-izq { left: 10px; }
         .btn-der { right: 10px; }
 
-        .overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); opacity: 0; pointer-events: none; transition: 0.4s; z-index: 90; }
+        .overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); opacity: 0; pointer-events: none; transition: 0.4s; z-index: 90; }
         .overlay.activo { opacity: 1; pointer-events: auto; }
 
-        /* --- REPRODUCTOR COMPLETO Y RESPONSIVO --- */
+        /* --- REPRODUCTOR --- */
         .music-player {
             position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
             width: 95%; max-width: 650px; padding: 12px; display: flex; align-items: center; gap: 15px;
@@ -123,8 +126,6 @@
             .music-player { gap: 10px; padding: 10px; }
             .cover { width: 50px; height: 50px; }
             .title { font-size: 13px; }
-            .time { font-size: 9px; }
-            .bar { width: 3px; }
             .panel { height: 280px; }
         }
     </style>
@@ -142,12 +143,13 @@
 
     <button class="btn-abrir" onclick="abrirCarta()">¡Ábreme! (plii) 💌</button>
 
-    <div class="carta" id="carta">
+    <div class="carta" id="carta" onclick="abrirCarta()">
         <div class="contenido">
             <div class="tapa"></div>
             <div class="mensaje">
                 Gracias por existir 💙<br><br>
-                Eres mi química mayor 💙✨
+                Eres mi química mayor 💙✨<br><br>
+                Quisieras ser mi san valentin?
             </div>
         </div>
     </div>
@@ -210,6 +212,8 @@
         const current = document.getElementById("current");
         const durationText = document.getElementById("duration");
         const player = document.getElementById("mainPlayer");
+        const overlay = document.getElementById("overlay");
+        const carta = document.getElementById("carta");
 
         function togglePlay() {
             if (audio.paused) {
@@ -245,15 +249,28 @@
             audio.currentTime = (clickX / width) * audio.duration;
         }
 
-        function abrirCarta() { document.getElementById("carta").classList.toggle("activa"); }
-        function toggleIzq() { document.getElementById("panelIzq").classList.add("activo"); document.getElementById("overlay").classList.add("activo"); }
-        function toggleDer() { document.getElementById("panelDer").classList.add("activo"); document.getElementById("overlay").classList.add("activo"); }
+        // Lógica mejorada para abrir/cerrar carta y activar música
+        function abrirCarta() { 
+            carta.classList.toggle("activa"); 
+            if (carta.classList.contains("activa")) {
+                overlay.classList.add("activo");
+                if (audio.paused) togglePlay();
+            } else {
+                cerrarTodo();
+            }
+        }
+
+        function toggleIzq() { document.getElementById("panelIzq").classList.add("activo"); overlay.classList.add("activo"); }
+        function toggleDer() { document.getElementById("panelDer").classList.add("activo"); overlay.classList.add("activo"); }
+        
         function cerrarTodo() { 
             document.getElementById("panelIzq").classList.remove("activo"); 
             document.getElementById("panelDer").classList.remove("activo"); 
-            document.getElementById("overlay").classList.remove("activo"); 
+            carta.classList.remove("activa"); 
+            overlay.classList.remove("activo"); 
         }
 
+        // LocalStorage para los textos
         const textoIzq = document.getElementById("textoIzq");
         const textoDer = document.getElementById("textoDer");
         textoIzq.innerHTML = localStorage.getItem("panelIzq") || textoIzq.innerHTML;
@@ -261,6 +278,7 @@
         textoIzq.addEventListener("input", () => localStorage.setItem("panelIzq", textoIzq.innerHTML));
         textoDer.addEventListener("input", () => localStorage.setItem("panelDer", textoDer.innerHTML));
 
+        // Partículas (Corazones y Estrellas)
         setInterval(() => {
             const c = document.createElement("div");
             c.classList.add("corazon");
